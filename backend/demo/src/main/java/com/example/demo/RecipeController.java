@@ -28,8 +28,8 @@ public class RecipeController {
     }
 
     @GetMapping("/suggestions")
-    public String getSuggestions(@RequestParam(defaultValue = "5") int days) {
-        List<GroceryItem> expiringItems = repository.findByExpiryDateBefore(LocalDate.now().plusDays(days));
+    public String getSuggestions(@RequestParam String householdId, @RequestParam(defaultValue = "5") int days) {
+        List<GroceryItem> expiringItems = repository.findByHouseholdIdAndExpiryDateBefore(householdId, LocalDate.now().plusDays(days));
 
         if (expiringItems.isEmpty()) {
             return "{\"message\": \"No expiring items to suggest recipes for.\"}";

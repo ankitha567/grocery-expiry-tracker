@@ -14,8 +14,8 @@ public class GroceryItemController {
     private GroceryItemService service;
 
     @GetMapping
-    public List<GroceryItem> getAll() {
-        return service.getAllItems();
+    public List<GroceryItem> getAll(@RequestParam String householdId) {
+        return service.getAllItems(householdId);
     }
 
     @PostMapping
@@ -39,8 +39,8 @@ public class GroceryItemController {
     }
 
     @GetMapping("/expiring")
-    public List<GroceryItem> expiringSoon(@RequestParam(defaultValue = "3") int days) {
-        return service.getExpiringSoon(days);
+    public List<GroceryItem> expiringSoon(@RequestParam String householdId, @RequestParam(defaultValue = "3") int days) {
+        return service.getExpiringSoon(householdId, days);
     }
 
     @PatchMapping("/{id}/status")
@@ -49,7 +49,12 @@ public class GroceryItemController {
     }
 
     @GetMapping("/stats")
-    public Map<String, Object> getStats() {
-        return service.getStats();
+    public Map<String, Object> getStats(@RequestParam String householdId) {
+        return service.getStats(householdId);
+    }
+
+    @GetMapping("/shopping-list")
+    public List<Map<String, Object>> getShoppingList(@RequestParam String householdId) {
+        return service.getShoppingList(householdId);
     }
 }

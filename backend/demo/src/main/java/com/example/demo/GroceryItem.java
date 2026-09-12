@@ -1,9 +1,11 @@
 package com.example.demo;
 
-import lombok.Data;
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDate;
+
+import lombok.Data;
 
 @Data
 @Document(collection = "items")
@@ -17,8 +19,5 @@ public class GroceryItem {
     private String imageUrl;
     private String barcode;
     private String status = "ACTIVE"; // ACTIVE, USED, WASTED
-
-    public static void main(String[] args) {
-        // This entity is not intended to run directly, but Java tooling requires a main method in single-file sources.
-    }
+    private String householdId; // NEW - groups items by household
 }
