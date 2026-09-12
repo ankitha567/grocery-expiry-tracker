@@ -32,6 +32,18 @@ function App() {
     fetchItems()
   }, [])
 
+  const getExpiryStatus = (expiryDate) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const expiry = new Date(expiryDate)
+    const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24))
+
+    if (diffDays < 0) return { label: 'Expired', color: 'bg-red-100 text-red-700 border-red-300' }
+    if (diffDays === 0) return { label: 'Expires today', color: 'bg-red-100 text-red-700 border-red-300' }
+    if (diffDays <= 3) return { label: `${diffDays}d left`, color: 'bg-amber-100 text-amber-700 border-amber-300' }
+    return { label: `${diffDays}d left`, color: 'bg-green-100 text-green-700 border-green-300' }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmitting(true)
@@ -124,15 +136,23 @@ function App() {
         <p className="text-center text-gray-500">No items yet. Add one above!</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-xl font-semibold">{item.name}</h2>
-              <p className="text-gray-600">{item.category}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Expires: {item.expiryDate}
-              </p>
-            </div>
-          ))}
+          {items.map((item) => {
+            const status = getExpiryStatus(item.expiryDate)
+            return (
+              <div key={item.id} className="bg-white rounded-lg shadow p-4">
+                <div className="flex justify-between items-start">
+                  <h2 className="text-xl font-semibold">{item.name}</h2>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full border ${status.color}`}>
+                    {status.label}
+                  </span>
+                </div>
+                <p className="text-gray-600">{item.category}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Expires: {item.expiryDate}
+                </p>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
