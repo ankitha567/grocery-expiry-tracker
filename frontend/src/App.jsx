@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
 function App() {
+  // --- State Management ---
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -11,6 +12,10 @@ function App() {
   const [expiryDate, setExpiryDate] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  const [recipes, setRecipes] = useState([])
+  const [recipesLoading, setRecipesLoading] = useState(true)
+
+  // --- API Integrations ---
   const fetchItems = () => {
     setLoading(true)
     fetch('http://localhost:8080/api/items')
@@ -28,10 +33,27 @@ function App() {
       })
   }
 
+  const fetchRecipes = () => {
+    setRecipesLoading(true)
+    fetch('http://localhost:8080/api/recipes/suggestions')
+      .then((res) => res.json())
+      .then((data) => {
+        setRecipes(Array.isArray(data) ? data : [])
+        setRecipesLoading(false)
+      })
+      .catch(() => {
+        setRecipes([])
+        setRecipesLoading(false)
+      })
+  }
+
+  // Load everything once on initial mount
   useEffect(() => {
     fetchItems()
+    fetchRecipes()
   }, [])
 
+  // --- Helper Functions ---
   const getExpiryStatus = (expiryDate) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -44,6 +66,7 @@ function App() {
     return { label: `${diffDays}d left`, color: 'bg-green-100 text-green-700 border-green-300' }
   }
 
+  // --- Form & Action Submissions ---
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmitting(true)
@@ -65,7 +88,8 @@ function App() {
         setPurchaseDate('')
         setExpiryDate('')
         setSubmitting(false)
-        fetchItems() // refresh list
+        fetchItems()   // Refresh items list
+        fetchRecipes() // Refresh recipes automatically
       })
       .catch((err) => {
         setError(err.message)
@@ -79,13 +103,15 @@ function App() {
     })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to delete item')
-        fetchItems() // refresh list
+        fetchItems()   // Refresh items list
+        fetchRecipes() // Refresh recipes automatically
       })
       .catch((err) => {
         setError(err.message)
       })
   }
 
+  // --- Visual Render Layout ---
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-green-600 mb-6 text-center">
@@ -174,6 +200,33 @@ function App() {
           })}
         </div>
       )}
+
+      {/* Recipe Suggestions */}
+      <div className="max-w-4xl mx-auto mt-10">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+          🍳 Recipe Ideas for Your Expiring Items
+        </h2>
+        {recipesLoading ? (
+          <p className="text-center text-gray-500">Loading recipes...</p>
+        ) : recipes.length === 0 ? (
+          <p className="text-center text-gray-500">No recipe suggestions right now.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {recipes.map((recipe) => (
+              <div key={recipe.id} className="bg-white rounded-lg shadow overflow-hidden">
+                <img src={recipe.image} alt={recipe.title} className="w-full h-40 object-cover" />
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-800">{recipe.title}</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Uses {recipe.usedIngredientCount} of your items
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   )
 }
