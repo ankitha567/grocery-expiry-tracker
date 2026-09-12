@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 
 function App() {
-  // --- State Management ---
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -15,7 +14,6 @@ function App() {
   const [recipes, setRecipes] = useState([])
   const [recipesLoading, setRecipesLoading] = useState(true)
 
-  // --- API Integrations ---
   const fetchItems = () => {
     setLoading(true)
     fetch('http://localhost:8080/api/items')
@@ -47,13 +45,11 @@ function App() {
       })
   }
 
-  // Load everything once on initial mount
   useEffect(() => {
     fetchItems()
     fetchRecipes()
   }, [])
 
-  // --- Helper Functions ---
   const getExpiryStatus = (expiryDate) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -66,7 +62,6 @@ function App() {
     return { label: `${diffDays}d left`, color: 'bg-green-100 text-green-700 border-green-300' }
   }
 
-  // --- Form & Action Submissions ---
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmitting(true)
@@ -88,8 +83,8 @@ function App() {
         setPurchaseDate('')
         setExpiryDate('')
         setSubmitting(false)
-        fetchItems()   // Refresh items list
-        fetchRecipes() // Refresh recipes automatically
+        fetchItems()
+        fetchRecipes()
       })
       .catch((err) => {
         setError(err.message)
@@ -103,15 +98,14 @@ function App() {
     })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to delete item')
-        fetchItems()   // Refresh items list
-        fetchRecipes() // Refresh recipes automatically
+        fetchItems()
+        fetchRecipes()
       })
       .catch((err) => {
         setError(err.message)
       })
   }
 
-  // --- Visual Render Layout ---
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-green-600 mb-6 text-center">
@@ -217,16 +211,20 @@ function App() {
                 <img src={recipe.image} alt={recipe.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-800">{recipe.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-green-600 mt-1">
                     Uses {recipe.usedIngredientCount} of your items
                   </p>
+                  {recipe.missedIngredientCount > 0 && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      + {recipe.missedIngredientCount} more ingredient{recipe.missedIngredientCount > 1 ? 's' : ''} needed
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-
     </div>
   )
 }

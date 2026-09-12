@@ -1,6 +1,5 @@
 package com.example.demo;
 
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +42,8 @@ public class RecipeController {
         String url = "https://api.spoonacular.com/recipes/findByIngredients"
                 + "?ingredients=" + ingredients
                 + "&number=6"
-                + "&ranking=1"
+                + "&ranking=2"
+                + "&ignorePantry=true"
                 + "&apiKey=" + apiKey;
 
         return restTemplate.getForObject(url, String.class);
