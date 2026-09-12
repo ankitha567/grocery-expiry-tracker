@@ -73,6 +73,19 @@ function App() {
       })
   }
 
+  const handleDelete = (id) => {
+    fetch(`http://localhost:8080/api/items/${id}`, {
+      method: 'DELETE',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to delete item')
+        fetchItems() // refresh list
+      })
+      .catch((err) => {
+        setError(err.message)
+      })
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-green-600 mb-6 text-center">
@@ -150,6 +163,12 @@ function App() {
                 <p className="text-sm text-gray-500 mt-2">
                   Expires: {item.expiryDate}
                 </p>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="mt-3 text-xs text-red-500 hover:text-red-700 hover:underline"
+                >
+                  Delete
+                </button>
               </div>
             )
           })}
