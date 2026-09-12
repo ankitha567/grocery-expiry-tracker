@@ -16,4 +16,9 @@ public class GroceryItem {
     private LocalDate expiryDate;
     private String imageUrl;
     private String barcode;
+    private String status = "ACTIVE"; // ACTIVE, USED, WASTED
+
+    public static void main(String[] args) {
+        // This entity is not intended to run directly, but Java tooling requires a main method in single-file sources.
+    }
 }

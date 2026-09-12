@@ -1,6 +1,30 @@
 import { useState, useEffect } from 'react'
 import BarcodeScanner from './BarcodeScanner'
 
+const CATEGORY_ICONS = {
+  dairy: '🥛',
+  bakery: '🍞',
+  vegetable: '🥦',
+  vegetables: '🥦',
+  fruit: '🍎',
+  fruits: '🍎',
+  meat: '🍗',
+  beverage: '🥤',
+  beverages: '🥤',
+  snack: '🍪',
+  snacks: '🍪',
+  grain: '🌾',
+  grains: '🌾',
+  condiment: '🧂',
+  condiments: '🧂',
+}
+
+function getCategoryIcon(category) {
+  if (!category) return '🛒'
+  const key = category.toLowerCase().trim()
+  return CATEGORY_ICONS[key] || '🛒'
+}
+
 function App() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,6 +42,10 @@ function App() {
   const [showScanner, setShowScanner] = useState(false)
   const [scanError, setScanError] = useState(null)
   const [manualBarcode, setManualBarcode] = useState('')
+
+  const [filter, setFilter] = useState('all') // 'all' | 'soon' | 'expired'
+
+  const [stats, setStats] = useState({ usedCount: 0, wastedCount: 0, kgSaved: 0, kgWasted: 0 })
 
   const fetchItems = () => {
     setLoading(true)
@@ -50,32 +78,47 @@ function App() {
       })
   }
 
+  const fetchStats = () => {
+    fetch('http://localhost:8080/api/items/stats')
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch(() => {})
+  }
+
   useEffect(() => {
     fetchItems()
     fetchRecipes()
+    fetchStats()
   }, [])
 
-  const getExpiryStatus = (expiryDate) => {
+  const getDiffDays = (expiryDate) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const expiry = new Date(expiryDate)
-    const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24))
+    return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24))
+  }
 
+  const getExpiryStatus = (expiryDate) => {
+    const diffDays = getDiffDays(expiryDate)
     if (diffDays < 0) return { label: 'Expired', color: 'bg-red-100 text-red-700 border-red-300' }
     if (diffDays === 0) return { label: 'Expires today', color: 'bg-red-100 text-red-700 border-red-300' }
     if (diffDays <= 3) return { label: `${diffDays}d left`, color: 'bg-amber-100 text-amber-700 border-amber-300' }
     return { label: `${diffDays}d left`, color: 'bg-green-100 text-green-700 border-green-300' }
   }
 
-  const getExpiringSoonCount = () => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return items.filter((item) => {
-      const expiry = new Date(item.expiryDate)
-      const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24))
-      return diffDays <= 3
-    }).length
-  }
+  const expiringSoonCount = items.filter((item) => {
+    const d = getDiffDays(item.expiryDate)
+    return d >= 0 && d <= 3
+  }).length
+
+  const expiredCount = items.filter((item) => getDiffDays(item.expiryDate) < 0).length
+
+  const filteredItems = items.filter((item) => {
+    const d = getDiffDays(item.expiryDate)
+    if (filter === 'soon') return d >= 0 && d <= 3
+    if (filter === 'expired') return d < 0
+    return true
+  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -119,6 +162,20 @@ function App() {
       })
   }
 
+  const handleMarkStatus = (id, status) => {
+    fetch(`http://localhost:8080/api/items/${id}/status?status=${status}`, {
+      method: 'PATCH',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to update status')
+        fetchItems()
+        fetchStats()
+      })
+      .catch((err) => {
+        setError(err.message)
+      })
+  }
+
   const handleScanSuccess = (barcode) => {
     setShowScanner(false)
     setScanError(null)
@@ -148,16 +205,42 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold text-green-600 mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 p-8">
+      <h1 className="text-4xl font-bold text-green-600 mb-6 text-center tracking-tight">
         Grocery Tracker 🥦
       </h1>
 
-      {getExpiringSoonCount() > 0 && (
-        <div className="max-w-xl mx-auto mb-6 bg-amber-100 border border-amber-300 text-amber-800 rounded-lg px-4 py-3 text-center font-medium">
-          ⚠️ {getExpiringSoonCount()} item{getExpiringSoonCount() > 1 ? 's' : ''} expiring soon — check your list below!
+      {expiringSoonCount > 0 && (
+        <div className="max-w-xl mx-auto mb-6 bg-amber-100 border border-amber-300 text-amber-800 rounded-lg px-4 py-3 text-center font-medium shadow-sm">
+          ⚠️ {expiringSoonCount} item{expiringSoonCount > 1 ? 's' : ''} expiring soon — check your list below!
         </div>
       )}
+
+      {/* Food Waste Impact Banner */}
+      <div className="max-w-xl mx-auto mb-6 bg-green-600 text-white rounded-lg px-6 py-4 shadow text-center">
+        <p className="text-lg font-semibold">🌍 Food Waste Saved</p>
+        <p className="text-3xl font-bold mt-1">{stats.kgSaved} kg</p>
+        <p className="text-xs text-green-100 mt-1">
+          {stats.usedCount} item{stats.usedCount !== 1 ? 's' : ''} used in time
+          {stats.wastedCount > 0 && ` · ${stats.wastedCount} wasted (${stats.kgWasted} kg)`}
+        </p>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="max-w-xl mx-auto mb-8 grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-lg shadow p-4 text-center">
+          <p className="text-2xl font-bold text-gray-800">{items.length}</p>
+          <p className="text-xs text-gray-500 mt-1">Total Items</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 text-center">
+          <p className="text-2xl font-bold text-amber-600">{expiringSoonCount}</p>
+          <p className="text-xs text-gray-500 mt-1">Expiring Soon</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 text-center">
+          <p className="text-2xl font-bold text-red-600">{expiredCount}</p>
+          <p className="text-xs text-gray-500 mt-1">Expired</p>
+        </div>
+      </div>
 
       {/* Add Item Form */}
       <div className="max-w-xl mx-auto mb-8">
@@ -242,35 +325,83 @@ function App() {
         />
       )}
 
+      {/* Filter Tabs */}
+      <div className="max-w-4xl mx-auto mb-4 flex justify-center gap-2">
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'soon', label: 'Expiring Soon' },
+          { key: 'expired', label: 'Expired' },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setFilter(tab.key)}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+              filter === tab.key
+                ? 'bg-green-600 text-white shadow'
+                : 'bg-white text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {/* Item List */}
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : error ? (
         <p className="text-center text-red-600">Error: {error}</p>
-      ) : items.length === 0 ? (
-        <p className="text-center text-gray-500">No items yet. Add one above!</p>
+      ) : filteredItems.length === 0 ? (
+        <div className="text-center max-w-md mx-auto mt-10">
+          <p className="text-6xl mb-4">🥕</p>
+          <p className="text-gray-500 font-medium">
+            {items.length === 0
+              ? 'Your fridge is empty! Add your first item above.'
+              : 'No items match this filter.'}
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {items.map((item) => {
+          {filteredItems.map((item) => {
             const status = getExpiryStatus(item.expiryDate)
             return (
-              <div key={item.id} className="bg-white rounded-lg shadow p-4">
+              <div
+                key={item.id}
+                className="bg-white rounded-lg shadow p-4 hover:shadow-lg hover:-translate-y-1 transition duration-200"
+              >
                 <div className="flex justify-between items-start">
-                  <h2 className="text-xl font-semibold">{item.name}</h2>
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <span>{getCategoryIcon(item.category)}</span>
+                    {item.name}
+                  </h2>
                   <span className={`text-xs font-medium px-2 py-1 rounded-full border ${status.color}`}>
                     {status.label}
                   </span>
                 </div>
-                <p className="text-gray-600">{item.category}</p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-gray-600 ml-7">{item.category}</p>
+                <p className="text-sm text-gray-500 mt-2 ml-7">
                   Expires: {item.expiryDate}
                 </p>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="mt-3 text-xs text-red-500 hover:text-red-700 hover:underline"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-3 mt-3 ml-7">
+                  <button
+                    onClick={() => handleMarkStatus(item.id, 'USED')}
+                    className="text-xs text-green-600 hover:text-green-800 font-medium hover:underline"
+                  >
+                    ✓ Mark Used
+                  </button>
+                  <button
+                    onClick={() => handleMarkStatus(item.id, 'WASTED')}
+                    className="text-xs text-orange-500 hover:text-orange-700 font-medium hover:underline"
+                  >
+                    Mark Wasted
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="text-xs text-red-500 hover:text-red-700 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             )
           })}
@@ -289,7 +420,10 @@ function App() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {recipes.map((recipe) => (
-              <div key={recipe.id} className="bg-white rounded-lg shadow overflow-hidden">
+              <div
+                key={recipe.id}
+                className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg hover:-translate-y-1 transition duration-200"
+              >
                 <img src={recipe.image} alt={recipe.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-800">{recipe.title}</h3>
