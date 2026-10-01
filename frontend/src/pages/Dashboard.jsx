@@ -1,155 +1,291 @@
+import { useEffect, useState } from 'react'
+import { Flame, Leaf, Package, Clock, Trash2, Sprout, Carrot, Apple, Wheat } from 'lucide-react'
 import { useGrocery } from '../context/GroceryContext'
 import Mascot from '../components/Mascot'
 import HouseholdBanner from '../components/HouseholdBanner'
 import ExpiryRoulette from '../components/ExpiryRoulette'
 import dashboardImage from '../assets/img11.jpg'
+import bgImage from '../assets/imb5.jpg' // put imb5.jpg in src/assets
 
+/* ===== Tokens ===== */
+const serif = { fontFamily: "'Fraunces', Georgia, serif" }
+const sans = { fontFamily: "'DM Sans', system-ui, sans-serif" }
+const MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365]
 
+const card =
+  'bg-white/80 dark:bg-stone-900/80 border border-[#e7dfca] dark:border-stone-800 rounded-3xl'
+const lift =
+  'transition duration-200 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-14px_rgba(47,74,52,0.35)]'
 
-/* ===== Decorative Background ===== */
+/* ===== Full-page watercolor background ===== */
+function BackgroundImage() {
+  return (
+    <div aria-hidden="true" className="fixed inset-0 -z-10 pointer-events-none">
+      <img
+        src={bgImage}
+        alt=""
+        className="w-full h-full object-cover object-center opacity-[0.14] mix-blend-multiply dark:opacity-0"
+      />
+    </div>
+  )
+}
+
+/* ===== Faint background illustrations ===== */
 function BackgroundDecor() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-200 dark:bg-emerald-900 rounded-full opacity-40 blur-3xl" />
-      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-orange-200 dark:bg-orange-900 rounded-full opacity-40 blur-3xl" />
-      <div className="absolute -bottom-32 left-1/4 w-96 h-96 bg-violet-200 dark:bg-violet-900 rounded-full opacity-30 blur-3xl" />
-      <span className="absolute top-16 left-[8%] text-4xl opacity-20 animate-float">🥕</span>
-      <span className="absolute top-40 right-[12%] text-5xl opacity-20 animate-float-slow">🍎</span>
-      <span className="absolute bottom-32 left-[15%] text-4xl opacity-20 animate-float-slow">🥦</span>
-      <span className="absolute bottom-20 right-[20%] text-4xl opacity-20 animate-float">🍞</span>
+    <div
+      aria-hidden="true"
+      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none text-[#4f6b4a] dark:text-emerald-200"
+    >
+      <Carrot className="absolute -top-6 -right-6 w-44 h-44 rotate-[18deg] opacity-[0.07]" strokeWidth={1} />
+      <Wheat className="absolute top-1/2 -left-8 w-40 h-40 -rotate-12 opacity-[0.06]" strokeWidth={1} />
+      <Apple className="absolute bottom-10 right-[8%] w-36 h-36 -rotate-[10deg] opacity-[0.06]" strokeWidth={1} />
+      <Sprout className="absolute -bottom-6 left-[12%] w-40 h-40 rotate-6 opacity-[0.07]" strokeWidth={1} />
     </div>
   )
 }
 
-/* ===== Fridge Mascot ===== */
-function FridgeIllustration() {
-  return (
-    <svg viewBox="0 0 240 240" className="w-28 h-28 sm:w-36 sm:h-36 mx-auto md:mx-0 drop-shadow-xl">
-      <rect x="50" y="20" width="140" height="200" rx="18" fill="#ffffff" stroke="#10b981" strokeWidth="4" />
-      <line x1="50" y1="80" x2="190" y2="80" stroke="#10b981" strokeWidth="4" />
-      <rect x="170" y="35" width="8" height="30" rx="4" fill="#10b981" />
-      <rect x="170" y="95" width="8" height="45" rx="4" fill="#10b981" />
-      <circle cx="95" cy="130" r="8" fill="#1f2937" />
-      <circle cx="145" cy="130" r="8" fill="#1f2937" />
-      <path d="M95 155 Q120 175 145 155" stroke="#1f2937" strokeWidth="4" fill="none" strokeLinecap="round" />
-      <circle cx="80" cy="145" r="6" fill="#fca5a5" opacity="0.6" />
-      <circle cx="160" cy="145" r="6" fill="#fca5a5" opacity="0.6" />
-    </svg>
-  )
-}
+/* ===== Hero: streak ===== */
+function StreakCard({ days }) {
+  const next = MILESTONES.find((m) => m > days) || days + 1
+  const left = next - days
+  const lit = Math.min(days, 7)
 
-/* ===== Reusable Stat Card ===== */
-function StatCard({ icon, value, label, valueColor }) {
   return (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-white/50 dark:border-gray-700/50 rounded-2xl shadow-md p-5 text-center hover:shadow-lg hover:-translate-y-1 transition">
-      <p className="text-3xl mb-1">{icon}</p>
-      <p className={`text-2xl font-bold ${valueColor}`}>{value}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
+    <div
+      className={`lg:col-span-2 relative overflow-hidden rounded-3xl bg-[#2f4a34] text-[#f6f2e6] p-7 flex flex-col justify-between gap-8 ${lift}`}
+    >
+      <Flame
+        aria-hidden="true"
+        className="absolute -right-6 -bottom-6 w-40 h-40 text-[#f6f2e6] opacity-[0.07]"
+        strokeWidth={1}
+      />
+      <div className="flex items-center gap-2 text-sm text-[#cfd9c4]">
+        <Flame className="w-4 h-4 text-[#f0b27a]" />
+        Waste-free streak
+      </div>
+
+      <div>
+        <p className="text-7xl font-semibold leading-none" style={serif}>{days}</p>
+        <p className="mt-2 text-lg">{days === 1 ? 'day' : 'days'} in a row</p>
+      </div>
+
+      <div>
+        <div className="flex gap-1.5 mb-3" aria-hidden="true">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Flame
+              key={i}
+              className={`w-5 h-5 transition-colors duration-500 ${
+                i < lit ? 'text-[#f0b27a] fill-[#f0b27a]' : 'text-[#f6f2e6]/25'
+              }`}
+            />
+          ))}
+        </div>
+        <p className="text-sm text-[#cfd9c4]">
+          {left} more {left === 1 ? 'day' : 'days'} to reach {next} days
+        </p>
+      </div>
     </div>
   )
 }
 
-/* ===== Dashboard Main ===== */
+/* ===== Hero: impact ===== */
+function MiniStat({ label, value, sub }) {
+  return (
+    <div className="rounded-2xl bg-[#f3efe0] dark:bg-stone-800 p-4">
+      <p className="text-xl font-semibold text-stone-900 dark:text-stone-100">{value}</p>
+      <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+        {label}
+        {sub && <span> · {sub}</span>}
+      </p>
+    </div>
+  )
+}
+
+function ImpactCard({ stats, co2Saved }) {
+  return (
+    <div className={`${card} lg:col-span-3 relative overflow-hidden p-7 flex flex-col justify-between gap-8 ${lift}`}>
+      <Leaf
+        aria-hidden="true"
+        className="absolute -right-8 -top-8 w-44 h-44 text-[#4f6b4a] dark:text-emerald-300 opacity-[0.07]"
+        strokeWidth={1}
+      />
+      <div className="flex items-center gap-2 text-sm text-[#5d7556] dark:text-emerald-300">
+        <Leaf className="w-4 h-4" />
+        Food waste saved
+      </div>
+
+      <div className="flex items-baseline gap-2">
+        <p className="text-7xl font-semibold leading-none text-stone-900 dark:text-stone-100" style={serif}>
+          {stats.kgSaved}
+        </p>
+        <span className="text-2xl text-stone-500 dark:text-stone-400">kg</span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <MiniStat label="Used" value={stats.usedCount} />
+        <MiniStat label="Wasted" value={stats.wastedCount} sub={`${stats.kgWasted} kg`} />
+        <MiniStat label="CO₂ avoided" value={`${co2Saved} kg`} />
+      </div>
+    </div>
+  )
+}
+
+/* ===== Freshness tile ===== */
+function FreshTile({ icon: Icon, label, count, pct, iconBg, iconColor }) {
+  return (
+    <div className={`rounded-2xl bg-[#f3efe0] dark:bg-stone-800 p-4 flex items-center gap-4 ${lift}`}>
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+      </div>
+      <div>
+        <p className="text-2xl font-semibold leading-none text-stone-900 dark:text-stone-100" style={serif}>
+          {count}
+        </p>
+        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+          {label} · {pct}%
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ===== Dashboard ===== */
 function Dashboard() {
   const { items, stats, expiringSoonCount, expiredCount, streakDays } = useGrocery()
+
+  // Bar grows in once on load
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   const freshCount = items.length - expiringSoonCount - expiredCount
   const total = items.length || 1
   const freshPct = Math.round((freshCount / total) * 100)
   const soonPct = Math.round((expiringSoonCount / total) * 100)
-  const expiredPct = 100 - freshPct - soonPct
+  const expiredPct = Math.max(0, 100 - freshPct - soonPct)
   const co2Saved = Math.round(stats.kgSaved * 2.5 * 10) / 10
 
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+
+  const segments = [
+    { pct: freshPct, color: 'bg-[#6b8f62]' },
+    { pct: soonPct, color: 'bg-[#e0a84a]' },
+    { pct: expiredPct, color: 'bg-[#c4604a]' },
+  ]
+
   return (
-    <div className="relative max-w-5xl mx-auto px-4 py-10 space-y-10">
+    <div className="relative isolate min-h-screen bg-[#f6f2e6] dark:bg-stone-950" style={sans}>
+      <BackgroundImage />
       <BackgroundDecor />
 
-      {/* ===== Header with side image ===== */}
-      <header className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-        <div className="flex-1">
-          <FridgeIllustration />
-          <h1 className="text-3xl sm:text-4xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 tracking-tight">
-            Welcome back! 👋
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Here's what's happening in your kitchen today
-          </p>
-        </div>
-        <img
-          src={dashboardImage}
-          alt="Groceries and savings"
-          className="w-48 sm:w-64 hidden md:block shrink-0"
-        />
-      </header>
-
-      {/* ===== Mascot + Household ===== */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <Mascot />
-        <HouseholdBanner />
-      </section>
-
-      {/* ===== Streak + Impact ===== */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl px-6 py-6 shadow-lg text-center flex flex-col justify-center">
-          <p className="text-4xl">🔥</p>
-          <p className="text-2xl font-bold mt-1">{streakDays} day{streakDays !== 1 ? 's' : ''} streak</p>
-          <p className="text-xs text-orange-100 mt-1">No wasted food — keep it going!</p>
-        </div>
-
-        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl px-6 py-6 shadow-lg text-center flex flex-col justify-center">
-          <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full" />
-          <div className="absolute -bottom-8 -left-8 w-28 h-28 bg-white/10 rounded-full" />
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-100">
-            🌍 Food Waste Saved
-          </p>
-          <p className="text-4xl font-extrabold mt-1">{stats.kgSaved} kg</p>
-          <p className="text-xs text-emerald-100 mt-2">
-            {stats.usedCount} used
-            {stats.wastedCount > 0 && ` · ${stats.wastedCount} wasted (${stats.kgWasted} kg)`}
-          </p>
-          {stats.kgSaved > 0 && (
-            <p className="text-xs text-emerald-100 mt-1">
-              ≈ {co2Saved} kg CO₂ avoided 🌱
+      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6">
+        {/* ===== Header ===== */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-2">
+          <div>
+            <h1
+              className="text-4xl sm:text-5xl font-semibold tracking-tight text-stone-900 dark:text-stone-100"
+              style={serif}
+            >
+              {greeting}
+            </h1>
+            <p className="text-stone-600 dark:text-stone-400 mt-2">
+              Here's what's happening in your kitchen today.
             </p>
-          )}
-        </div>
-      </section>
-
-      {/* ===== Expiry Roulette ===== */}
-      <section>
-        <ExpiryRoulette />
-      </section>
-
-      {/* ===== Stats Grid ===== */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <StatCard icon="📦" value={items.length} label="Total Items" valueColor="text-gray-800 dark:text-gray-100" />
-        <StatCard icon="⏳" value={expiringSoonCount} label="Expiring Soon" valueColor="text-amber-500" />
-        <StatCard icon="🗑️" value={expiredCount} label="Expired" valueColor="text-red-500" />
-      </section>
-
-      {/* ===== Freshness Breakdown ===== */}
-      {items.length > 0 && (
-        <section className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-white/50 dark:border-gray-700/50 rounded-2xl shadow-md p-5">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
-            Freshness Breakdown
-          </h2>
-          <div className="flex w-full h-4 rounded-full overflow-hidden">
-            {freshPct > 0 && <div className="bg-emerald-400" style={{ width: `${freshPct}%` }} />}
-            {soonPct > 0 && <div className="bg-amber-400" style={{ width: `${soonPct}%` }} />}
-            {expiredPct > 0 && <div className="bg-red-400" style={{ width: `${expiredPct}%` }} />}
           </div>
-          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
-            <span>🟢 Fresh ({freshCount})</span>
-            <span>🟡 Soon ({expiringSoonCount})</span>
-            <span>🔴 Expired ({expiredCount})</span>
-          </div>
+          <img
+            src={dashboardImage}
+            alt="Groceries and savings"
+            className="w-44 hidden md:block shrink-0 rounded-[2rem] shadow-sm"
+          />
+        </header>
+
+        {/* ===== Hero row: streak + impact ===== */}
+        <section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <StreakCard days={streakDays} />
+          <ImpactCard stats={stats} co2Saved={co2Saved} />
         </section>
-      )}
 
-      {/* ===== Footer ===== */}
-      <footer className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
-        🌱 Keep tracking — every saved item counts!
-      </footer>
+        {/* ===== Hero: freshness ===== */}
+        <section className={`${card} p-7 ${lift}`}>
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-stone-900 dark:text-stone-100" style={serif}>
+                Freshness
+              </h2>
+              <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
+                How your kitchen looks right now
+              </p>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-[#f3efe0] dark:bg-stone-800 px-3 py-1.5 text-sm text-stone-700 dark:text-stone-300">
+              <Package className="w-4 h-4 text-stone-500" />
+              {items.length} items
+            </div>
+          </div>
+
+          {items.length === 0 ? (
+            <p className="text-sm text-stone-500 dark:text-stone-400 py-6">
+              Add items in Inventory to see your freshness breakdown.
+            </p>
+          ) : (
+            <>
+              <div className="flex gap-1 w-full h-5 rounded-full overflow-hidden bg-stone-200/70 dark:bg-stone-700">
+                {segments.map(
+                  (s, i) =>
+                    s.pct > 0 && (
+                      <div
+                        key={i}
+                        className={`${s.color} h-full transition-[width] duration-700 ease-out motion-reduce:transition-none`}
+                        style={{ width: mounted ? `${s.pct}%` : '0%', transitionDelay: `${i * 120}ms` }}
+                      />
+                    )
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                <FreshTile
+                  icon={Sprout}
+                  label="Fresh"
+                  count={freshCount}
+                  pct={freshPct}
+                  iconBg="bg-[#dfe9d6] dark:bg-emerald-950"
+                  iconColor="text-[#4f6b4a] dark:text-emerald-300"
+                />
+                <FreshTile
+                  icon={Clock}
+                  label="Expiring soon"
+                  count={expiringSoonCount}
+                  pct={soonPct}
+                  iconBg="bg-[#f6e6c4] dark:bg-amber-950"
+                  iconColor="text-[#a8761f] dark:text-amber-300"
+                />
+                <FreshTile
+                  icon={Trash2}
+                  label="Expired"
+                  count={expiredCount}
+                  pct={expiredPct}
+                  iconBg="bg-[#f2d6cd] dark:bg-red-950"
+                  iconColor="text-[#a8402c] dark:text-red-300"
+                />
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* ===== Mascot + Household ===== */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+          <Mascot />
+          <HouseholdBanner />
+        </section>
+
+        {/* ===== Expiry Roulette ===== */}
+        <section>
+          <ExpiryRoulette />
+        </section>
+      </div>
     </div>
   )
 }

@@ -25,12 +25,13 @@ function Login() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ===== Page Heading ===== */}
-      <header className="text-center py-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md">
-        <h1 className="text-3xl font-bold tracking-tight"> Grocery Tracker</h1>
-        <p className="text-sm mt-1">
-          Track expiry dates, reduce waste, and shop smarter
-        </p>
-      </header>
+      <header className="text-center py-6 bg-[#fdf6e3] text-gray-800 shadow-sm">
+  <h1 className="text-3xl font-bold tracking-tight"> Grocery Tracker</h1>
+  <p className="text-sm mt-1 text-gray-600">
+    Track expiry dates, reduce waste, and shop smarter
+  </p>
+</header>
+
 
       {/* ===== Split Layout ===== */}
       <div className="flex flex-col md:flex-row flex-1">
