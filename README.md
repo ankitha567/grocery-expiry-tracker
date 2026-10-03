@@ -8,7 +8,7 @@ Track what's in your kitchen, get pinged before food spoils, cook it up with AI-
 
 ## 🚀 Live Demo
 
-- **Live App:** _[add your deployed link here]_
+- **Live App:** Not deployed — see Demo Video below for a full walkthrough, or run locally using the setup instructions.
 - **Demo Video:** _[add your Google Drive video link here]_
 - **GitHub Repo:** https://github.com/ankithas567/grocery-expiry-tracker
 
