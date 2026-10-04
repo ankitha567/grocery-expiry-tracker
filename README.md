@@ -1,4 +1,4 @@
-# Grocery Tracker 🥦
+# Grocery Tracker 
 
 **Smart expiry management & food waste reducer** — built for the **AI for Everyday Life** hackathon problem statement.
 
@@ -6,7 +6,7 @@ Track what's in your kitchen, get pinged before food spoils, cook it up with AI-
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 - **Live App:** Not deployed — see Demo Video below for a full walkthrough, or run locally using the setup instructions.
 - **Demo Video:** _[https://drive.google.com/file/d/1EUZbJZyjOp3Tl2e0FwgVZJQAWBo7DAv9/view?usp=sharing]_
@@ -14,17 +14,17 @@ Track what's in your kitchen, get pinged before food spoils, cook it up with AI-
 
 ---
 
-## 🧠 The Problem
+##  The Problem
 
 Households routinely waste food and money simply because they forget what's in the fridge and when it expires. Most food waste isn't due to lack of care — it's a lack of visibility and timely reminders.
 
-## 💡 Our Solution
+##  Our Solution
 
 Grocery Tracker gives users a simple, AI-assisted way to log groceries (by hand, barcode scan, or voice), see at a glance what's expiring, get recipe ideas to use things up in time, and track their real-world impact on food waste — turning a daily chore into a small, rewarding habit.
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Tracking
 - **Add items** manually, by **scanning a barcode** (photo upload or live camera), or by **voice command** ("Add milk category dairy expiring in 5 days")
@@ -52,7 +52,7 @@ Grocery Tracker gives users a simple, AI-assisted way to log groceries (by hand,
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -66,7 +66,7 @@ Grocery Tracker gives users a simple, AI-assisted way to log groceries (by hand,
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 grocery-expiry-tracker/
@@ -110,7 +110,7 @@ grocery-expiry-tracker/
 
 ---
 
-## ⚙️ Getting Started (Local Setup)
+##  Getting Started (Local Setup)
 
 ### Prerequisites
 - Java 17+
@@ -158,7 +158,7 @@ The app will be live at `http://localhost:5173`.
 
 ---
 
-## 🔌 API Endpoints (Backend)
+##  API Endpoints (Backend)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -175,7 +175,7 @@ The app will be live at `http://localhost:5173`.
 
 ---
 
-## 🌱 Impact
+##  Impact
 
 By combining simple expiry tracking with AI-driven recipe suggestions and real-time waste analytics, Grocery Tracker helps households:
 - Reduce food thrown away (and the money that goes with it)
@@ -185,7 +185,7 @@ By combining simple expiry tracking with AI-driven recipe suggestions and real-t
 
 ---
 
-## 🔮 Future Improvements
+##  Future Improvements
 
 - Push notifications (not just in-app banners)
 - Multi-language voice input support
@@ -195,12 +195,12 @@ By combining simple expiry tracking with AI-driven recipe suggestions and real-t
 
 ---
 
-## 👤 Team
+##  Team
 
 - **Ankitha** — Full-stack development (backend, frontend, deployment)
 
 ---
 
-## 📄 License
+##  License
 
 MIT
