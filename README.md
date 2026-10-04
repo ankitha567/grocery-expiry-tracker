@@ -63,7 +63,6 @@ Grocery Tracker gives users a simple, AI-assisted way to log groceries (by hand,
 | Recipe Data | Spoonacular API |
 | Product Lookup | Open Food Facts API |
 | Voice Input | Web Speech API (browser-native) |
-| Deployment | Vercel (frontend), Render (backend) |
 
 ---
 
